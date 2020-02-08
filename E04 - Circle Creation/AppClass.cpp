@@ -4,7 +4,28 @@ void Application::InitVariables(void)
 	//Make MyMesh object
 	m_pMesh = new MyMesh();
 	//Generate a circle
-	m_pMesh->GenerateCircle(2.0f, 5, C_RED);
+	//m_pMesh->GenerateCircle(2.0f, 5, C_RED);
+	//m_pMesh->AddTri(vector3(-1.0f, -1.0f, 0.0f),
+	//	vector3(1.0f, -1.0f, 0.0f),
+	//	vector3(0.0f, 1.0f, 0.0f));
+
+	int sides = 12;
+	float currentAngle = 0.0f;
+	float plusAngle = 2.0f*PI / sides;
+	float radius = 1.0f;
+
+	for (int i = 0; i < sides; i++) {
+		m_pMesh->AddTri(vector3(0.0f, 0.0f, 0.0f),
+			vector3(radius * cos(currentAngle), radius * sin(currentAngle), 0.0f),
+			vector3(radius * cos(currentAngle + plusAngle), radius * sin(currentAngle + plusAngle), 0.0f));
+
+		currentAngle += plusAngle;
+	}
+		
+
+
+
+	m_pMesh->CompileOpenGL3X();
 }
 void Application::Update(void)
 {
