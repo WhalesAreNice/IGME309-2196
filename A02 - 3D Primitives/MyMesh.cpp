@@ -276,7 +276,20 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+	//GenerateCube(a_fRadius * 2.0f, a_v3Color);
+
+	float angle = 2.0f * PI / a_nSubdivisions;
+
+	for (int i = 0; i < a_nSubdivisions; i++) {
+		vector3 point1(a_fRadius * cos(i * angle), a_fRadius * sin(i * angle), 0.0f);
+		vector3 point2(a_fRadius * cos((i + 1) * angle), a_fRadius * sin((i + 1) * angle), 0.0f);
+		vector3 centerPoint(0.0f, 0.0f, 0.0f);
+		vector3 topPoint(0.0f, 0.0f, -a_fHeight);
+
+		AddTri(point1, point2, centerPoint);
+		AddTri(point2, point1, topPoint);
+	}
+	
 	// -------------------------------
 
 	// Adding information about color
@@ -300,7 +313,23 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+	//GenerateCube(a_fRadius * 2.0f, a_v3Color);
+
+	float angle = 2.0f * PI / a_nSubdivisions;
+
+	for (int i = 0; i < a_nSubdivisions; i++) {
+		vector3 point1(a_fRadius * cos((i + 1) * angle), a_fRadius * sin((i + 1) * angle), a_fHeight);
+		vector3 point2(a_fRadius * cos(i * angle), a_fRadius * sin(i * angle), a_fHeight);
+		vector3 point3(a_fRadius * cos((i + 1) * angle), a_fRadius * sin((i + 1) * angle), 0.0f);
+		vector3 point4(a_fRadius * cos(i * angle), a_fRadius * sin(i * angle), 0.0f);
+		vector3 bottomCenterPoint(0.0f, 0.0f, 0.0f);
+		vector3 topCenterPoint(0.0f, 0.0f, a_fHeight);
+
+		AddTri(bottomCenterPoint, point3, point4);
+		AddTri(point2, point1, topCenterPoint);
+		AddQuad(point1, point2, point3, point4);
+	}
+
 	// -------------------------------
 
 	// Adding information about color
@@ -330,7 +359,27 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
+	//GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
+
+	float angle = 2.0f * PI / a_nSubdivisions;
+
+	for (int i = 0; i < a_nSubdivisions; i++) {
+		vector3 point1(a_fOuterRadius * cos((i + 1) * angle), a_fOuterRadius * sin((i + 1) * angle), a_fHeight);
+		vector3 point2(a_fOuterRadius * cos(i * angle), a_fOuterRadius * sin(i * angle), a_fHeight);
+		vector3 point3(a_fOuterRadius * cos((i + 1) * angle), a_fOuterRadius * sin((i + 1) * angle), 0.0f);
+		vector3 point4(a_fOuterRadius * cos(i * angle), a_fOuterRadius * sin(i * angle), 0.0f);
+
+		vector3 point5(a_fInnerRadius * cos((i + 1) * angle), a_fInnerRadius * sin((i + 1) * angle), a_fHeight);
+		vector3 point6(a_fInnerRadius * cos(i * angle), a_fInnerRadius * sin(i * angle), a_fHeight);
+		vector3 point7(a_fInnerRadius * cos((i + 1) * angle), a_fInnerRadius * sin((i + 1) * angle), 0.0f);
+		vector3 point8(a_fInnerRadius * cos(i * angle), a_fInnerRadius * sin(i * angle), 0.0f);
+
+		AddQuad(point3, point4, point7, point8);
+		AddQuad(point2, point1, point6, point5);
+		AddQuad(point1, point2, point3, point4);
+		AddQuad(point7, point8, point5, point6);
+	}
+
 	// -------------------------------
 
 	// Adding information about color
@@ -362,7 +411,53 @@ void MyMesh::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSu
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
+	//GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
+
+	float ringAngle = 2.0f * PI / a_nSubdivisionsA;
+	float cylinderAngle = 2.0f * PI / a_nSubdivisionsB;
+	float cylinderRadius = (a_fOuterRadius - a_fInnerRadius) / 2.0f;
+	float ringRadius = a_fInnerRadius + cylinderRadius;
+	float x1, x2, y1, y2, z1, z2;
+
+	for (int i = 0; i < a_nSubdivisionsA; i++) {
+		x1 = (ringRadius * cos(i * ringAngle));
+		x2 = (ringRadius * cos((i + 1) * ringAngle));
+		y1 = (ringRadius * sin(i * ringAngle));
+		y2 = (ringRadius * sin((i + 1) * ringAngle));
+		z1 = 0.0f;
+		z2 = 0.0f;
+
+		for (int j = 0; j < a_nSubdivisionsB; j++) {
+			//xyz of first point for the cylinder from the first point from the ring
+			float point1X = x1 + cylinderRadius * cos(j * cylinderAngle);
+			float point1Y = y1;
+			float point1Z = z1 + cylinderRadius * sin(j * cylinderAngle);
+
+			//xyz of second point for the cylinder from the first point from the ring
+			float point2X = x1 + cylinderRadius * cos((j + 1) * cylinderAngle);
+			float point2Y = y1;
+			float point2Z = z1 + cylinderRadius * sin((j + 1) * cylinderAngle);
+
+			//xyz of first point for the cylinder from the second point from the ring
+			float point3X = x2 + cylinderRadius * cos(j * cylinderAngle);
+			float point3Y = y2;
+			float point3Z = z2 + cylinderRadius * sin(j * cylinderAngle);
+
+			//xyz of second point for the cylinder from the first point from the ring
+			float point4X = x2 + cylinderRadius * cos((j + 1) * cylinderAngle);
+			float point4Y = y2;
+			float point4Z = z2 + cylinderRadius * sin((j + 1) * cylinderAngle);
+
+			vector3 point1(point1X, point1Y, point1Z);
+			vector3 point2(point2X, point2Y, point2Z);
+			vector3 point3(point3X, point3Y, point3Z);
+			vector3 point4(point4X, point4Y, point4Z);
+
+			AddQuad(point1, point2, point3, point4);
+		}
+	}
+
+
 	// -------------------------------
 
 	// Adding information about color
@@ -387,7 +482,56 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+	//GenerateCube(a_fRadius * 2.0f, a_v3Color);
+
+	std::vector<vector3> vertices;
+
+	float x, y, z, xy; //vertex positions
+	int divisions = a_nSubdivisions * 5;
+
+	float sectorStep = 2.0f * PI / divisions;
+	float stackStep = PI / divisions;
+	float stackAngle, sectorAngle;
+
+	for (int i = 0; i <= divisions; i++) {
+		stackAngle = PI / 2 - i * stackStep;		//starting from pi/2 to -pi/2
+		xy = a_fRadius * cos(stackAngle);			//radius * cos(u)
+		z = a_fRadius * sin(stackAngle);			//radius * sin(u)
+
+		for (int j = 0; j <= divisions; j++) {
+			sectorAngle = j * sectorStep;			//starting from from 0 to 2PI
+			x = xy * cos(sectorAngle);				// radius * cos(u) * cos(v)
+			y = xy * sin(sectorAngle);				// radius * cos(u) * sin(v)
+
+			vector3 point(x, y, z);
+			vertices.push_back(point);
+		}
+	}
+
+	int k1, k2;	//indexes for the specific stack
+
+	for (int i = 0; i < divisions; i++) {
+		k1 = i * (divisions + 1);					//beginning of current stack
+		k2 = (i + 1) * (divisions + 1);				//beginning of next stack
+
+		for (int j = 0; j < divisions; j++, k1++, k2++) {
+			vector3 point1 = vertices[k1];
+			vector3 point2 = vertices[k1 + 1];
+			vector3 point3 = vertices[k2];
+			vector3 point4 = vertices[k2 + 1];
+
+			if (i == 0) {	//first stack
+				AddTri(point1, point3, point4);
+			}
+			else if (i == divisions - 1) {		//last stack
+				AddTri(point1, point3, point2);
+			}
+			else {	//everything in the middle
+				AddQuad(point3, point4, point1, point2);
+			}
+		}
+	}
+
 	// -------------------------------
 
 	// Adding information about color
